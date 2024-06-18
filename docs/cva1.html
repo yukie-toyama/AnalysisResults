@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Yukie Toyama" />
+
+<meta name="date" content="2024-06-16" />
+
+<title>CVA: calibration #1</title>
+
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">MyAnalysisReports</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="CVA1.html">CVA1</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">CVA: calibration #1</h1>
+<h4 class="author">Yukie Toyama</h4>
+<h4 class="date">2024-06-16</h4>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#wright-map" id="toc-wright-map">Wright Map</a></li>
+<li><a href="#item-difficulty" id="toc-item-difficulty">Item
+Difficulty</a></li>
+<li><a href="#item-fit" id="toc-item-fit">Item Fit</a></li>
+<li><a href="#item-table" id="toc-item-table">Item Table</a></li>
+<li><a href="#student-ability" id="toc-student-ability">Student
+Ability</a></li>
+</ul>
+</div>
+
+<div id="wright-map" class="section level3">
+<h3>Wright Map</h3>
+<p>We calibrated all available response data from 2336 students for 81
+items, using the Rasch model. The WrightMap shows item difficulty and
+ability estimates on the logit scale. Items are ordered by difficulty on
+the x-axis. The map visually shows that no items exist for the very top
+and the very bottom ends of the ability distribution along the y-axis.
+This may be because the calibration sample includes students who are
+outside of the target grade- / ability-levels (see Student Ability
+section below).</p>
+<p><img src="cva1_files/figure-html/wm-1.png" width="98%" /></p>
+</div>
+<div id="item-difficulty" class="section level3">
+<h3>Item Difficulty</h3>
+<p>Item difficulty ranged from -1.57 to 1.54 logits, with mean = -0.35
+and SD = -0.46.</p>
+<table class="table table-striped table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+Table 1. Item difficulty
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+meam
+</th>
+<th style="text-align:right;">
+sd
+</th>
+<th style="text-align:right;">
+min
+</th>
+<th style="text-align:right;">
+max
+</th>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+-0.35
+</td>
+<td style="text-align:right;">
+0.65
+</td>
+<td style="text-align:right;">
+-1.57
+</td>
+<td style="text-align:right;">
+1.54
+</td>
+<td style="text-align:right;">
+81
+</td>
+</tr>
+</tbody>
+</table>
+<p>A histogram and a boxplot below show the distribution of the item
+difficulty estimates. Given that the mean of the student ability is
+constrained to 0, the current CVA items as a set is relatively easier
+with the median of -0.46. The red line in the boxplot shows the mean
+item difficulty (-0.35).</p>
+<p><img src="cva1_files/figure-html/item.dist-1.png" width="672" /><img src="cva1_files/figure-html/item.dist-2.png" width="672" /></p>
+</div>
+<div id="item-fit" class="section level3">
+<h3>Item Fit</h3>
+<p>All CVA items except for one (decorated = “quotation”) have infit
+values within the acceptable range (0.75-1.33), indicating that they fit
+to the Rasch model. In the Item Fit graph below, all except for one
+Infit value, are located between the blue vertical lines.</p>
+<p>The misfitting item (“quotation”) is the most difficult item (1.54
+logits) in the item set. The infit value of 1.35 indicates that the item
+elicits responses that are more random than the model excepts.</p>
+<p>The first expected score curve below shows the discrepancy between
+the model-based ICC (item characteristic curve, in blue) and the
+observed-ICC (in black) for the misfitting item (“quotation”). The
+observed line indicates that the item does not discriminate the higher
+ability from the lower-ability students; in fact, students with lower
+ability estimates have slight better chance of success than students
+with higher ability estimates.</p>
+<p>The second curve is for the item with decorated word “critical”. The
+Infit value for this item was 1.23, within the acceptable range,
+although the the item doesn’t appear to be discriminating the middle
+range of the ability distribution (around -1 to 1 logit).</p>
+<p>A good explanation of item-fit statistics by Margaret Wu can be found
+<a
+href="https://www.edmeasurementsurveys.com/residual-based-item-fit-statistics.html">here</a>.</p>
+<p><img src="cva1_files/figure-html/fit-1.png" width="98%" /></p>
+<p><img src="cva1_files/figure-html/fit2-1.png" width="672" /><img src="cva1_files/figure-html/fit2-2.png" width="672" /></p>
+<table class="table table-striped table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+Table 3a. Misfitting item (quotation)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+formAndId
+</th>
+<th style="text-align:left;">
+item
+</th>
+<th style="text-align:left;">
+decorated
+</th>
+<th style="text-align:left;">
+target
+</th>
+<th style="text-align:left;">
+distractor1
+</th>
+<th style="text-align:left;">
+distractor2
+</th>
+<th style="text-align:left;">
+distractor3
+</th>
+<th style="text-align:right;">
+difficulty
+</th>
+<th style="text-align:right;">
+Infit
+</th>
+<th style="text-align:right;">
+Infit_t
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+b-5-6-8
+</td>
+<td style="text-align:left;">
+The quotation used in the mayor’s speech is from yesterday’s newspaper.
+</td>
+<td style="text-align:left;">
+quotation
+</td>
+<td style="text-align:left;">
+passage
+</td>
+<td style="text-align:left;">
+symbol
+</td>
+<td style="text-align:left;">
+example
+</td>
+<td style="text-align:left;">
+theme
+</td>
+<td style="text-align:right;">
+1.54
+</td>
+<td style="text-align:right;">
+1.35
+</td>
+<td style="text-align:right;">
+6.14
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+Table 3b. Item (critical)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+formAndId
+</th>
+<th style="text-align:left;">
+item
+</th>
+<th style="text-align:left;">
+decorated
+</th>
+<th style="text-align:left;">
+target
+</th>
+<th style="text-align:left;">
+distractor1
+</th>
+<th style="text-align:left;">
+distractor2
+</th>
+<th style="text-align:left;">
+distractor3
+</th>
+<th style="text-align:right;">
+difficulty
+</th>
+<th style="text-align:right;">
+Infit
+</th>
+<th style="text-align:right;">
+Infit_t
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+a-5-6-13
+</td>
+<td style="text-align:left;">
+He is very critical about his own work, even when his coworkers praise
+him.
+</td>
+<td style="text-align:left;">
+critical
+</td>
+<td style="text-align:left;">
+negative
+</td>
+<td style="text-align:left;">
+exact
+</td>
+<td style="text-align:left;">
+particular
+</td>
+<td style="text-align:left;">
+careful
+</td>
+<td style="text-align:right;">
+1.15
+</td>
+<td style="text-align:right;">
+1.23
+</td>
+<td style="text-align:right;">
+5.21
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="item-table" class="section level3">
+<h3>Item Table</h3>
+<p>Table below shows the item difficulty and item fit for the 81 CVA
+items, in the descending order of item difficulty (i.e., the most
+difficulty item at the top).</p>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-bffe0301288d41f0616c" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bffe0301288d41f0616c">{"x":{"filter":"none","vertical":false,"data":[["b-5-6-8","b-3-4-16","a-5-6-13","b-5-6-6","b-5-6-12","b-5-6-9","a-3-4-12","b-3-4-19","b-5-6-20","a-5-6-3","a-5-6-2","a-5-6-10","b-5-6-18","a-5-6-5","a-5-6-16","b-5-6-11","a-3-4-15","b-5-6-7","a-3-4-19","a-3-4-13","a-5-6-17","a-3-4-17","a-5-6-9","a-5-6-18","a-5-6-7","b-3-4-12","b-5-6-14","b-5-6-16","a-3-4-14","b-5-6-2","b-5-6-15","b-5-6-1","b-5-6-17","a-3-4-8","a-5-6-14","b-3-4-9","a-3-4-1","b-5-6-5","b-3-4-11","b-3-4-4","b-5-6-10","b-3-4-18","a-5-6-15","b-5-6-3","b-3-4-6","b-3-4-13","a-3-4-4","b-3-4-14","b-5-6-4","a-3-4-2","a-5-6-8","b-3-4-3","a-5-6-6","b-3-4-10","a-3-4-11","b-3-4-8","a-3-4-5","b-3-4-5","a-5-6-1","a-3-4-9","a-5-6-11","a-3-4-3","b-3-4-2","b-5-6-13","a-3-4-7","a-3-4-18","a-5-6-12","b-3-4-15","a-3-4-16","b-5-6-19m","b-3-4-20","b-5-6-19","a-3-4-10","a-3-4-20","b-3-4-17","a-5-6-4","a-5-6-20","b-3-4-1","b-3-4-7","a-5-6-19","a-3-4-6"],[1.536960825398143,1.177238579619016,1.152707843660079,0.8712494898934907,0.8672576887682757,0.8154485034638356,0.7620521143917484,0.5466526071749238,0.5448386505965264,0.533794418970887,0.4841050943532876,0.3969995051361337,0.3010833959156073,0.2783590491546108,0.1950909248993072,0.1935375731410057,0.1813838757814474,0.1740461318498936,0.1408041338486636,0.1112489117244834,0.08172237490554742,-0.006892357661915495,-0.07279634198176627,-0.07894333186116528,-0.1377662619624727,-0.1426296312294459,-0.1703182479466505,-0.2399601810242392,-0.2565243269416586,-0.3077491384726185,-0.3106431524839258,-0.3449395155950775,-0.3600364644951928,-0.3624990025687529,-0.3792946351770012,-0.4161419132134184,-0.4258111301738431,-0.4312324072043843,-0.4373259831150064,-0.4459973967719743,-0.4572893768750368,-0.4693870558267711,-0.4739950352522468,-0.4831163865847038,-0.48607427124509,-0.5114836114596848,-0.5237891500905265,-0.5260203601929085,-0.5660607182096064,-0.5940572257676749,-0.6016239473714016,-0.6134565361793285,-0.6180536493133029,-0.6296994601841787,-0.6668198282651497,-0.6718631707641712,-0.6946935338543584,-0.7007507250461666,-0.7135241507015037,-0.7210500469440719,-0.7258060222424055,-0.7456120782432722,-0.7471775420203781,-0.791033486591498,-0.7990434457158709,-0.8774208210913699,-0.8956732000128985,-0.9774088632071065,-1.030781240262417,-1.062981290344132,-1.070753377734894,-1.126269436015241,-1.161429429772707,-1.198420432634734,-1.198583929222572,-1.210375419083825,-1.227268189893916,-1.230024653562025,-1.316404375946886,-1.404017163792803,-1.57340072306472],[1.34892229879057,1.201527513887294,1.231203943640713,1.125051938966922,1.113092787144428,1.100118763029887,1.165834913514936,1.091418852808435,1.095006606900842,1.208569966089926,1.057457791437278,1.142660661993533,1.042376657450367,1.091232848676318,0.9498695536483118,1.042288457390366,1.125367181010503,1.011702117695159,1.011628597854,1.150683841719089,1.071625698023127,1.100710784918616,1.137522945254494,0.896348491207927,1.025702140974366,0.9841526721103241,1.011225688490432,0.9050570773211789,1.033429852351373,0.9444629874154252,0.9461866571221456,1.037814751808565,0.9830958089718489,0.9328409929677121,0.9682913948611892,1.008153214493296,1.145549955270822,1.048275373352511,0.9279218578112093,1.01122687568871,1.031777765790527,0.9642352887381582,0.9803604412182416,0.9289550453757276,0.9622408188347277,0.9442178744896242,0.9801131121609914,1.086276057875488,0.9694986515789699,1.079573560320655,0.9379125780946714,1.056645772071636,0.8744165396734751,0.8864415063348644,0.9592505473124995,1.001183235857668,0.9499283619165679,0.8801522209739451,0.9162627010756103,0.9664117441542158,0.9590773035611989,0.9950704207148594,0.9752380995886166,0.9277404269166755,1.05211974993998,0.8634371229193751,0.812399014964441,0.9295006424134784,0.9615664729513058,0.9702351356818137,0.9375079673626044,0.9451872820859064,0.8979886489472554,0.7695058059041482,0.9312768948609144,0.8348991408867116,0.9219279491008269,0.8599988920299344,0.8992735378693861,0.8174033429806425,0.844579252419839],["The quotation used in the mayor’s speech is from yesterday’s newspaper.","Beth wrote her social studies report on Martin Luther King, Jr.","He is very critical about his own work, even when his coworkers praise him.","Some doctors say a positive attitude is important to healing.","Doctors use technology to help people with vision problems see clearly.","The illustration on the book’s cover made people want to read it.","In a play, the set consists of the things that are on the stage, such as chairs and walls.","It is standard for workers to sit during meetings, but meetings where everyone stands are becoming popular.","In the time of the Roman Empire, the Romans conquered lands in Europe, Africa, and Asia.","Because of her moral principles, she returned the lost money.","The university was established in 1893 and is now one of the best in the country.","Without sufficient darkness, it can be difficult to get to sleep.","The new manager wanted to make the factory more efficient.","Beans and rice is one of the traditional dishes of Mexico.","The store didn’t make the profit it needed and had to close down.","A car must use more fuel to maintain its speed when going up a hill.","Birds’ nests can be surprisingly tiny or they can be extremely large.","The car's distinct color made it easy to find in a crowded parking lot.","Today’s phones have the advantage over older phones, which could only be used in one place.","The family frequently traveled to parks during the summer.","Hawaii is often associated with beaches, but the state  has many other attractions.","The scientists studied the composition of the rocks to understand the history of the moon.","The road will be blocked off during the construction of the library.","A change in climate can have permanent effects on an area’s wildlife.","The visiting teacher gave a formal speech before answering questions from the students.","The influence of television on children’s behavior is a topic that scientists study.","The distribution of candy is a traditional part of Halloween in the U.S.","The zoo has homes for many types of animals including a portion for birds.","One of the primary reasons for going to a beach is to swim.","If you don’t have money for the charity, you can contribute time as a volunteer.","When making a birdhouse, you must take precise measurements.","We bought a large quantity of cheese from the shop.","The senator represented her state for 20 years before retiring.","Some foods and games have been showed to help people’s concentration and skill.","Businesses that want to expand often borrow money from banking institutions.","Her eyelids gradually closed as she nodded off to sleep.","Food and other items made with natural things break down and become part of the soil.","There is a potential problem with that idea.","Would you like individual packs of crackers or a large box for the picnic?","We will find out who is the fastest runner at the competition tomorrow.","Vitamins are an essential part of a healthy diet.","The situation for the lost hikers could get quite dangerous if the snow keeps falling.","Only very capable swimmers can make it to the other end of the lake.","By not using the correct safety procedure, the sailor put the crew in danger.","A newborn horse stays in contact with its mother, following her around.","Some wild animals in cities obtain food from garbage cans.","The children combined their money to buy a present for Mother’s Day.","Most of my clothes come from my older sister, but I occasionally get something new.","The farmer adapted his truck to do different jobs around the farm.","Race cars today have many safety features like strong frames and safety tools.","I thought I would love this book, but the conclusion was boring.","The company attracted good workers because it paid well and was a fun place to work.","The manager has the authority to hire new workers when they are needed.","Ben needs to increase his practice time if he wants to do well in the swim meet next month.","The poor quality of the wheels may be why the cars keep breaking down.","The older generation didn’t have as many inventions to use as their children do now.","The brothers worked to make sure their attempt to fly the plane would be a success.","The constant rain each spring causes flooding in the area.","The conflict between the two players is starting to cause problems on the team.","People’s actions can help to prevent fires during their visits to parks.","She acquired many gifts during her trip.","He studied every night to improve his grades.","Some students take advanced classes if the normal classes aren’t challenging enough.","The previous owner of this house left some furniture here for us.","His lack of speed made everyone assume that he would lose the race.","Their clock needed to be accurate, if they were to be on time for the plane.","Different painting techniques can result in different styles of art.","The first graders made great progress in learning to read.","She applied a heavy coat of paint over the picture, hoping to hide her mistake.","The family adopted a kitten that needed a new home.","Wild animals that live in large cities must adapt their behavior if they are to survive.","The couple adopted a child who lost his parents in an accident.","Many cities have available space where people can plant gardens.","They had the opportunity to learn about sea life when they visited the ocean.","The coach praised the team for their selection of Luke as captain.","The scientist picked up the log and exposed the insects underneath it.","Some countries have been invaded by enemies many times because of their resources or location.","You can adjust your seatbelt by pushing or pulling the strap through the buckle.","Mayflies only exist for about 24 hours, and they must reproduce during this time.","The law was approved through a vote in Congress.","The children had a feeling of security only after they locked the door."],["quotation","report","critical","attitude","technology","illustration","consists","standard","conquered","principles","established","sufficient","efficient","traditional","profit","maintain","extremely","distinct","advantage","frequently","associated","composition","construction","permanent","formal","influence","distribution","portion","primary","contribute","precise","quantity","represented","concentration","institutions","gradually","items","potential","individual","competition","essential","situation","capable","procedure","contact","obtain","combined","occasionally","adapted","features","conclusion","attracted","authority","increase","quality","generation","attempt","constant","conflict","prevent","acquired","improve","advanced","previous","assume","accurate","techniques","progress","applied","adopted","survive","adopted","available","opportunity","selection","exposed","invaded","adjust","exist","approved","security"],["passage","paper","negative","outlook","instruments","picture","is made","usual","defeated","character","started","enough","productive","usual","income","continue","unusually","unique","benefit","often","connected","structure","building","lasting","proper","effect","giving","part","main","provide","exact","amount","spoke for","attention","companies","slowly","objects","possible","single","contest","necessary","condition","skilled","method","touch","get","added","sometimes","adjusted","parts","end","interested","power","raise","condition","age group","effort","endless","disagreement","stop","received","raise","higher","past","expect","correct","methods","growth","put on","selected","exist","selected","free","chance","choice","uncovered","attacked","change","live","accepted","protection"],["symbol","news","exact","change","medicine","title","is full","strange","protected","limits","destroyed","complete","important","modern","effort","choose","actually","pure","control","normally","shown","period","organization","natural","brief","direction","buying","cage","general","request","direct","variety","worked in","success","officers","softly","resources","minor","special","event","major","route","fearless","message","motion","want","divided","eagerly","drove","plans","middle","chose","budget","correct","change","teenagers","race","strong","association","build","considered","choose","extra","current","doubt","careful","materials","plans","threw on","considered","compete","considered","whole","knowledge","support","scared","found","cross","grow","reversed","warmth"],["example","draft","particular","outcome","energy","description","is part","best","developed","activity","discovered","constant","expensive","delicious","product","increase","mostly","bright","strength","usually","filled","action","creation","harmful","fine","importance","eating","garden","current","receive","various","piece","voted in","courage","buildings","tightly","terms","basic","several","demonstration","normal","treatment","confident","signal","step","save","piled","usually","cleaned","uses","plot","bought","plan","change","control","citizens","job","driving","communication","cause","gave","settle","several","kind","get","complete","subjects","sense","left on","approached","improve","approached","total","place","trust","collected","controlled","break","fly","replaced","enthusiasm"],["theme","story","careful","temperature","observation","design","is built","required","discovered","support","bought","normal","convenient","different","progress","limit","exactly","faded","force","chiefly","covered","position","preparation","limited","public","position","collecting","house","direct","purchase","many","spread","went to","strength","locations","lightly","forms","obvious","standard","performance","possible","footing","adventuresome","stage","agreement","lose","used","happily","handled","rides","story","used","sense","reach","service","companies","hope","first","cooperation","control","missed","learn","rapid","legal","deny","clear","standards","time","hit on","involved","benefit","involved","main","example","aid","angered","protected","twist","hatch","restricted","courage"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>fmid<\/th>\n      <th>difficulty<\/th>\n      <th>Infit<\/th>\n      <th>item<\/th>\n      <th>decorated<\/th>\n      <th>target<\/th>\n      <th>distractor1<\/th>\n      <th>distractor2<\/th>\n      <th>distractor3<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"columnDefs":[{"targets":1,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":2,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"className":"dt-right","targets":[1,2]},{"name":"fmid","targets":0},{"name":"difficulty","targets":1},{"name":"Infit","targets":2},{"name":"item","targets":3},{"name":"decorated","targets":4},{"name":"target","targets":5},{"name":"distractor1","targets":6},{"name":"distractor2","targets":7},{"name":"distractor3","targets":8}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render"],"jsHooks":[]}</script>
+</div>
+<div id="student-ability" class="section level3">
+<h3>Student Ability</h3>
+<table class="table table-striped table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+Table 2a. Student ability (all grades)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+meam
+</th>
+<th style="text-align:right;">
+sd
+</th>
+<th style="text-align:right;">
+min
+</th>
+<th style="text-align:right;">
+max
+</th>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1.15
+</td>
+<td style="text-align:right;">
+-3.5
+</td>
+<td style="text-align:right;">
+3.94
+</td>
+<td style="text-align:right;">
+2336
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+Table 2b. Student ability, by grade
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+user.grade
+</th>
+<th style="text-align:right;">
+meam
+</th>
+<th style="text-align:right;">
+sd
+</th>
+<th style="text-align:right;">
+min
+</th>
+<th style="text-align:right;">
+max
+</th>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-1.41
+</td>
+<td style="text-align:right;">
+0.59
+</td>
+<td style="text-align:right;">
+-2.33
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+51
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+-0.67
+</td>
+<td style="text-align:right;">
+0.99
+</td>
+<td style="text-align:right;">
+-2.95
+</td>
+<td style="text-align:right;">
+2.59
+</td>
+<td style="text-align:right;">
+313
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+-0.23
+</td>
+<td style="text-align:right;">
+1.03
+</td>
+<td style="text-align:right;">
+-2.89
+</td>
+<td style="text-align:right;">
+2.67
+</td>
+<td style="text-align:right;">
+316
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+-0.02
+</td>
+<td style="text-align:right;">
+1.07
+</td>
+<td style="text-align:right;">
+-2.43
+</td>
+<td style="text-align:right;">
+3.91
+</td>
+<td style="text-align:right;">
+166
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.24
+</td>
+<td style="text-align:right;">
+1.21
+</td>
+<td style="text-align:right;">
+-2.46
+</td>
+<td style="text-align:right;">
+3.86
+</td>
+<td style="text-align:right;">
+194
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+1.14
+</td>
+<td style="text-align:right;">
+-3.50
+</td>
+<td style="text-align:right;">
+3.85
+</td>
+<td style="text-align:right;">
+380
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0.23
+</td>
+<td style="text-align:right;">
+1.08
+</td>
+<td style="text-align:right;">
+-2.28
+</td>
+<td style="text-align:right;">
+2.89
+</td>
+<td style="text-align:right;">
+371
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:right;">
+1.30
+</td>
+<td style="text-align:right;">
+-2.62
+</td>
+<td style="text-align:right;">
+3.94
+</td>
+<td style="text-align:right;">
+231
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.23
+</td>
+<td style="text-align:right;">
+0.93
+</td>
+<td style="text-align:right;">
+-2.23
+</td>
+<td style="text-align:right;">
+2.20
+</td>
+<td style="text-align:right;">
+111
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.11
+</td>
+<td style="text-align:right;">
+0.85
+</td>
+<td style="text-align:right;">
+-2.34
+</td>
+<td style="text-align:right;">
+1.73
+</td>
+<td style="text-align:right;">
+86
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0.80
+</td>
+<td style="text-align:right;">
+0.97
+</td>
+<td style="text-align:right;">
+-1.83
+</td>
+<td style="text-align:right;">
+3.01
+</td>
+<td style="text-align:right;">
+117
+</td>
+</tr>
+</tbody>
+</table>
+<p><img src="cva1_files/figure-html/abilities-1.png" width="672" /></p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

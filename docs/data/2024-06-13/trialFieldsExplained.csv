@@ -1,0 +1,69 @@
+,field,notes
+1,trialId,unique per trial
+2,assessment_stage,test or practice
+3,button_response,
+4,choices,
+5,correct,
+6,correctResponseNum,
+7,decorated,word that will be underlined
+8,distractor1,
+9,distractor2,
+10,distractor3,
+11,internal_node_id,
+12,item,sentence prompt displayed
+13,keyboard_response,
+14,replay,
+15,response,student's answer
+16,responseNum,
+17,response_source,
+18,rt,response time
+19,save_trial,
+20,serverTimestamp,
+21,stimulus,audio file (null)
+22,target,correct answer
+23,time_elapsed,
+24,trial_index,
+25,trial_type,
+26,CreateTime_x,
+27,runId,
+28,corpusId,
+29,completed,
+30,taskId,
+31,timeFinished,
+32,timeStarted,
+33,variantId,
+34,CreateTime_y,
+35,assigningOrgs.classes,
+36,assigningOrgs.districts,school district identifier
+37,assigningOrgs.families,
+38,assigningOrgs.groups,non-school group identifier
+39,assigningOrgs.schools,school identifier
+40,scores.computed.composite,total score (number of test items correct)
+41,scores.raw.composite.practice.numAttempted,practice items attempted
+42,scores.raw.composite.practice.numCorrect,pracdice items correct
+43,scores.raw.composite.practice.numIncorrect,
+44,scores.raw.composite.practice.thetaEstimate,
+45,scores.raw.composite.practice.thetaSE,
+46,scores.raw.composite.test.numAttempted,test items attempted
+47,scores.raw.composite.test.numCorrect,test items correct
+48,scores.raw.composite.test.thetaEstimate,
+49,scores.raw.composite.test.thetaSE,
+50,scores.raw.composite.test.numIncorrect,
+51,user.assessmentPid,unique identifier for each student
+52,user.assessmentUid,
+53,user.created,
+54,user.districtId,
+55,user.lastUpdated,
+56,user.tasks,
+57,user.userType,
+58,user.variants,
+59,user.CreateTime,
+60,user.roarUid,
+61,user.birthMonth,
+62,user.birthYear,
+63,user.grade,student's grade
+64,user.schoolLevel,
+65,user.sso,
+66,user.createdAt,
+67,Form,CVA form
+68,itemId,item within CVA form

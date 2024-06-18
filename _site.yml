@@ -1,11 +1,9 @@
-name: "MyLabJournal"
+name: "AnalysisReports"
 navbar:
-  title: "MyLabJournal"
+  title: "MyAnalysisReports"
   left:
     - text: "Home"
       href: index.html
-    - text: "Journal"
-      href: Journal.html
-    - text: "Links"
-      href: Links.html
+    - text: "CVA1"
+      href: CVA1.html
 output_dir: "docs"
