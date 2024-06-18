@@ -5,5 +5,5 @@ navbar:
     - text: "Home"
       href: index.html
     - text: "CVA1"
-      href: CVA1.html
+      href: cva1.html
 output_dir: "docs"
