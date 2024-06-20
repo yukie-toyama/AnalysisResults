@@ -55,6 +55,10 @@ fm.id <- left_join(fm.id, item_df)
 library("TAM")
 rasch <- tam(resp_df[,-c(1:3)])
 
+resp <- resp_df[,-c(1:3)] %>% 
+  replace(is.na(.), 0)
+
+
 ```
 
 ```{r num.objects, echo=FALSE, results='hide'}
@@ -312,5 +316,72 @@ s_df %>%
 
 ```
 
+### Distractor Analysis
 
+In the discriminator analysis, students were divided into four groups based on their total scores. The proportion of students in each group choosing a particular answer choice are shown in the last four columns.
+
+We expect that the majority of upper group is choosing the correct option. If a different option is more attractive to the upper group, the item and its options should be flagged for review. For item 45 (decorated word = **quotation**), the answer choices "example" and "symbol"are more attractive to all four groups. 
+
+Note that option **ZZZ** indicate "missing". It includes both missing by design (i.e., students did not get this item) as well as missing as students did not answer.
+
+**pBis** indicates the point-biserial correlation between that response and the total score with that item removed. 
+
+```{r distractor, echo=FALSE, message = FALSE, warning = F}
+
+library("CTT")
+
+inum <- item_df %>% 
+  select(formAndId, inum) 
+
+rdf<- read_csv("data/2024-06-13/cva-trials-filtered-2024-06-13-deidentified.csv") %>%
+  mutate(Form = ifelse(is.na(Form), "b-5-6", Form),
+         itemId = ifelse(is.na(itemId), "19m", itemId)) %>% 
+  mutate(formAndId = paste(Form, itemId, sep = "-")) %>% 
+  select(user.assessmentUid, formAndId, item, response, target) 
+
+rdf <- left_join(rdf, inum)
+
+cva.key <- distinct(rdf, inum, target, .keep_all = TRUE) %>% 
+  arrange(inum) %>% select(target) %>% as.matrix()
+
+rdf <- rdf %>% 
+  select(sid = user.assessmentUid, inum, response) %>% 
+  pivot_wider(names_from = inum, values_from = response)
+
+rdf2 <- rdf %>% 
+  replace(is.na(.), "zzz") %>% 
+  select(-sid)
+
+ws.DA <- distractorAnalysis(rdf2,cva.key)
+
+library(purrr)
+ws.DA.df <- map_df(ws.DA, ~as.data.frame(.x), .id="inum") %>% 
+  group_by(inum) %>%
+  filter(n != 0)
+
+decorated <- fm.id %>% 
+  select(inum, decorated)
+
+ws.DA.df <- 
+  left_join(ws.DA.df, decorated) %>% 
+  select(inum, decorated, correct,
+          options = key, everything()) %>% 
+  mutate(across(where(is.numeric), round, 3))
+
+# prop of respondents with that option and discrimination are meaningless w/ missing cases present so drop.
+ws.DA.df <- ws.DA.df %>% 
+  select(-c(rspP, discrim))
+
+ws.DA.df <- ws.DA.df %>% 
+  arrange(inum, desc(correct), options)
+
+library(DT)
+ws.DA.df %>% 
+  DT::datatable(rownames = FALSE,
+                options = list(pageLength = 5)) 
+
+# Results provided in a .csv file.
+# write_csv(ws.DA.df, "cva.distractor.whole.sample.csv")
+
+```
 
