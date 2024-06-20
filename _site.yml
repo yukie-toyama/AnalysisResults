@@ -6,4 +6,6 @@ navbar:
       href: index.html
     - text: "CVA1"
       href: cva1.html
+    - text: "CVA2"
+      href: cva2.html
 output_dir: "docs"

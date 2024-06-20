@@ -1,8 +1,8 @@
 ---
-title: "CVA: calibration #1"
-subtitle: "with whole sample"
+title: "CVA: calibration #2"
+subtitle: "gr2-5 public school sample"
 author: "Yukie Toyama"
-date: "2024-06-16"
+date: "2024-06-19"
 output:
   html_document:
     toc: true
@@ -20,21 +20,21 @@ require(knitr)
 require(kableExtra)
 
 # read item df and create target.r with mutually exclusive values
-# inum is created in the csv file before importing
-item_df <- read_csv("data/2024-06-13/cva-stimuli-map-2024-06-13.csv")
-# glimpse(item_df)
+# note inum2 was created in the csv file before importing into R.
+item_df <- read_csv("data/grades-2-5/cva-stimuli-map-grade-2-5-2024-06-13.csv")
+# glimpse(item_df) # slightly different FormAndItemId
 # n_distinct(item_df$target)
 # get_dupes(item_df, target)
 
 item_df <- item_df %>% 
   mutate(target.r = 
-           ifelse(target == "condition" & formAndId == "b-3-4-18", "condition2",
-           ifelse(target == "raise" & formAndId == "b-3-4-10", "raise2",
-           ifelse(target == "selected" & formAndId == "b-5-6-19m", "selected2",
-           ifelse(target == "usual" & formAndId == "a-5-6-5", "usual2", target))))
+           ifelse(target == "condition" & FormAndItemId == "b-3-4-18", "condition2",
+           ifelse(target == "raise" & FormAndItemId == "b-3-4-10", "raise2",
+           ifelse(target == "selected" & FormAndItemId == "b-5-6-19m", "selected2",
+           ifelse(target == "usual" & FormAndItemId == "a-5-6-5", "usual2", target))))
          ) %>% 
   mutate(decorated.r = 
-           ifelse(decorated == "adopted" & formAndId == "b-5-6-19m", 
+           ifelse(decorated == "adopted" & FormAndItemId == "b-5-6-19m", 
                   "adopted.m", decorated))
 
 ```
@@ -42,13 +42,13 @@ item_df <- item_df %>%
 
 ```{r tam_rasch, include=FALSE}
 
-resp_df <- read_csv("data/2024-06-13/cva-irt-input-2024-06-13.csv", na = c(".", "", " "))
+resp_df <- read_csv("data/grades-2-5/cva-irt-input-grade-2-5-2024-06-13.csv", na = c(".", "", " "))
 # glimpse(resp_df)
 
-# get formAndId from the column name 
+# get FormAndItemId from the column name 
 library(data.table)
 fm.id <- as.data.frame(colnames(resp_df[4:ncol(resp_df)])) %>% 
-  select(formAndId = "colnames(resp_df[4:ncol(resp_df)])")
+  select(FormAndItemId = "colnames(resp_df[4:ncol(resp_df)])")
 
 # combine item info into fm.id
 fm.id <- left_join(fm.id, item_df)
@@ -57,14 +57,13 @@ fm.id <- left_join(fm.id, item_df)
 library("TAM")
 rasch <- tam(resp_df[,-c(1:3)])
 
-resp <- resp_df[,-c(1:3)] %>% 
-  replace(is.na(.), 0)
-
 
 ```
 
 ```{r num.objects, echo=FALSE, results='hide'}
+
 #item difficulties
+
 fm.id<- bind_cols(fm.id, rasch$xsi)
 fm.id$item.order <- seq.int(nrow(fm.id))
 
@@ -89,7 +88,9 @@ max.idiff <- round(max(rasch$item$xsi.item), digits = 2)
 
 ### Wright Map
 
-We calibrated **all available response data from `r n.stdt` students for `r n.item` items**, using the Rasch model. The WrightMap shows item difficulty and ability estimates on the logit scale. Items are ordered by difficulty on the x-axis. The map visually shows that no items exist for the very top and the very bottom ends of the ability distribution along the y-axis. This may be because the calibration sample includes students who are outside of the target grade- / ability-levels (see Student Ability section below).  
+In Calibration #2, we used **a restricted response data from `r n.stdt` students in grades 2-5 in public schools for `r n.item` items**, using the Rasch model. The WrightMap shows item difficulty and ability estimates on the logit scale. Items are ordered by difficulty on the x-axis. 
+
+Consistent with the results with the whole sample (calibration #1), the map visually shows that no items exist for the very top and the very bottom ends of the ability distribution along the y-axis.  
 
 
 ```{r wm, echo=FALSE, results = "hide", message =FALSE, fig.asp = 0.85, fig.width = 7, out.width = "98%"}
@@ -105,7 +106,7 @@ wrightMap(s_df$theta, fm.id$xsi,
           label.items.cex = 0.5,
           show.thr.lab = FALSE,
           label.items.srt = 90,
-          main.title = "WrightMap: 2,336 students, 81 items"
+          main.title = "WrightMap: 888 students, 81 items"
 	, axis.persons = "Students"
 	, axis.items = "",
 	dim.names = "",
@@ -119,6 +120,7 @@ wrightMap(s_df$theta, fm.id$xsi,
 ```
 
 ### Item Difficulty
+
 Item difficulty ranged from `r min.idiff` to `r max.idiff` logits, with mean = `r mean.idiff` and SD = `r md.idiff`. 
 
 ```{r item.sum, echo=FALSE, message = FALSE, warning = F, results = "asis"}
@@ -176,13 +178,10 @@ fm.id %>%
 ```
 
 ### Item Fit
-All CVA items except for one (decorated = "quotation") have infit values within the acceptable range (0.75-1.33), indicating that they fit to the Rasch model. In the Item Fit graph below, all except for one Infit value, are located between the blue vertical lines. 
 
-The misfitting item ("quotation") is the most difficult item (1.54 logits) in the item set. The infit value of 1.35 indicates that the item elicits responses that are more random than the model excepts. 
+Interestingly, all CVA items, including one misfitting item (decorated = "quotation") from Calibration #1, have infit values within the acceptable range (0.75-1.33), indicating that they fit to the Rasch model. In the Item Fit graph below, all except for one Infit value, are located between the blue vertical lines. However, the "quotation" item still has the highest infit value = 1.31 and its observed ICC looks problematic. 
 
-The first expected score curve below shows the discrepancy between the model-based ICC (item characteristic curve, in blue) and the observed-ICC (in black) for the misfitting item ("quotation"). The observed line indicates that the item does not discriminate the higher ability from the lower-ability students; in fact, students with lower ability estimates have slight better chance of success than students with higher ability estimates. 
-
-The second curve is for the item with decorated word "critical". The Infit value for this item was 1.23, within the acceptable range, although the the item doesn't appear to be discriminating the middle range of the ability distribution (around -1 to 1 logit).
+Below are the ICCs for "quotation" (first graph), and the "critical" (the second graph).
 
 A good explanation of item-fit statistics by Margaret Wu can be found [here](https://www.edmeasurementsurveys.com/residual-based-item-fit-statistics.html).
 
@@ -217,11 +216,13 @@ fm.id %>%
 ```{r fit2, echo=FALSE, message = FALSE, warning = F, results = "hide"}
 
 #examine expected & observed ICC for "quotation"
-plot(rasch,items=45)
+#note item number differs from calibratrion #1
+plot(rasch,items=38)
 # plot(rasch,items=45, ngroups = 3)
 
 #examine expected & observed ICC for "critical"
-plot(rasch,items=65)
+#note item number differs from calibratrion #1
+plot(rasch,items=55)
 
 ```
 
@@ -229,9 +230,9 @@ plot(rasch,items=65)
 
 rownames(fm.id) <- NULL
 
-# "quotation" infit value is 1.53
-fm.id %>% filter(Infit >1.33) %>% 
-  select(formAndId, item, decorated, target,
+# "quotation" infit value is 1.31
+fm.id %>% filter(decorated == "quotation") %>% 
+  select(FormAndItemId, item, decorated, target,
          starts_with("distractor"), 
          difficulty = xsi ,Infit, Infit_t) %>% 
   knitr::kable(., format = "html", 
@@ -241,7 +242,7 @@ fm.id %>% filter(Infit >1.33) %>%
                 font_size = 12, full_width = T)
 
 fm.id %>% filter(decorated == "critical") %>% 
-  select(formAndId, item, decorated, target,
+  select(FormAndItemId, item, decorated, target,
          starts_with("distractor"),
          difficulty = xsi, Infit, Infit_t) %>% 
   knitr::kable(., format = "html", 
@@ -258,7 +259,7 @@ Table below shows the item difficulty and item fit for the 81 CVA items, in the 
 ```{r itemtble, echo = FALSE, message = FALSE, warning = F}
 library(DT)
 fm.id %>% 
-  select(fmid = formAndId, difficulty = xsi,
+  select(fmid = FormAndItemId, difficulty = xsi,
          Infit, item, decorated, target, 
          starts_with("distractor")) %>% 
   arrange(desc(difficulty)) %>%
@@ -288,7 +289,7 @@ s_df %>%
                 font_size = 12, full_width = T)
 ```
 
-A histogram and a boxplot below show the distribution of the student ability estimates. As can be seen, this distribution is much more streched across the logit scale from -3.5 to almost 4.0 (compared to the item difficulty range: -1.57 to 1.54). The red line in the boxplot shows the mean person ability, which is constraint to 0 for the model identification purpose. 
+A histogram and a boxplot below show the distribution of the student ability estimates. As can be seen, this distribution is much more stretched across the logit scale from -2.79 to 4.14 (compared to the item difficulty range: -1.43 to 1.50). The red line in the boxplot shows the mean person ability, which is constraint to 0 for the model identification purpose. 
 
 ```{r abil.dist, echo=FALSE, message = FALSE, warning = F, results = "asis"}
 
@@ -391,23 +392,23 @@ Note that option **zzz** indicate "missing". It includes both missing by design 
 library("CTT")
 
 inum <- item_df %>% 
-  select(formAndId, inum) 
+  select(FormAndItemId, inum2) 
 
-rdf<- read_csv("data/2024-06-13/cva-trials-filtered-2024-06-13-deidentified.csv") %>%
+rdf<- read_csv("data/grades-2-5/cva-trials-public-grade-2-5-2024-06-13.csv") %>%
   mutate(Form = ifelse(is.na(Form), "b-5-6", Form),
          itemId = ifelse(is.na(itemId), "19m", itemId)) %>% 
-  mutate(formAndId = paste(Form, itemId, sep = "-")) %>% 
-  select(user.assessmentUid, formAndId, item, response, target) 
+  mutate(FormAndItemId = paste(Form, itemId, sep = "-item-")) %>% 
+  select(user.assessmentUid, FormAndItemId, item, response, target) 
 
 rdf <- left_join(rdf, inum)
 
-# key needs to be fromatted as matrix
-cva.key <- distinct(rdf, inum, target, .keep_all = TRUE) %>% 
-  arrange(inum) %>% select(target) %>% as.matrix()
+# key needs to be formatted as matrix
+cva.key <- distinct(rdf, inum2, target, .keep_all = TRUE) %>% 
+  arrange(inum2) %>% select(target) %>% as.matrix()
 
 rdf <- rdf %>% 
-  select(sid = user.assessmentUid, inum, response) %>% 
-  pivot_wider(names_from = inum, values_from = response)
+  select(sid = user.assessmentUid, inum2, response) %>% 
+  pivot_wider(names_from = inum2, values_from = response)
 
 rdf2 <- rdf %>% 
   replace(is.na(.), "zzz") %>% 
@@ -417,18 +418,18 @@ ws.DA <- distractorAnalysis(rdf2,cva.key)
 
 # combine the lists in ws.DA into a dataframe
 library(purrr)
-ws.DA.df <- map_df(ws.DA, ~as.data.frame(.x), .id="inum") %>% 
-  group_by(inum) %>%
+ws.DA.df <- map_df(ws.DA, ~as.data.frame(.x), .id="inum2") %>% 
+  group_by(inum2) %>%
   filter(n != 0)
 
 # get decorate column
 decorated <- fm.id %>% 
-  select(inum, decorated)
+  select(inum2, decorated)
 
 # merge decorate column, clean up the table
 ws.DA.df <- 
   left_join(ws.DA.df, decorated) %>% 
-  select(inum, decorated, correct,
+  select(inum2, decorated, correct,
           options = key, everything()) %>% 
   mutate(across(where(is.numeric), round, 3))
 
@@ -438,7 +439,7 @@ ws.DA.df <- ws.DA.df %>%
 
 # sort the table by item number, correct = * at the top, then alphabetical by options
 ws.DA.df <- ws.DA.df %>% 
-  arrange(inum, desc(correct), options)
+  arrange(inum2, desc(correct), options)
 
 # print the distractor analysis results table
 library(DT)
@@ -447,7 +448,7 @@ ws.DA.df %>%
                 options = list(pageLength = 5)) 
 
 # Results provided in a .csv file.
-# write_csv(ws.DA.df, "cva.distractor.whole.sample.csv")
+# write_csv(ws.DA.df, "cva.distractor.gr2-5.sample.csv")
 
 ```
 
