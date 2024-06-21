@@ -18,6 +18,7 @@ library(janitor)
 library(readr)
 require(knitr)
 require(kableExtra)
+# rm(list = ls()) remove everything from the env
 
 # read item df and create target.r with mutually exclusive values
 # inum is created in the csv file before importing
@@ -231,7 +232,7 @@ rownames(fm.id) <- NULL
 
 # "quotation" infit value is 1.53
 fm.id %>% filter(Infit >1.33) %>% 
-  select(formAndId, item, decorated, target,
+  select(inum, item, decorated, target,
          starts_with("distractor"), 
          difficulty = xsi ,Infit, Infit_t) %>% 
   knitr::kable(., format = "html", 
@@ -241,7 +242,7 @@ fm.id %>% filter(Infit >1.33) %>%
                 font_size = 12, full_width = T)
 
 fm.id %>% filter(decorated == "critical") %>% 
-  select(formAndId, item, decorated, target,
+  select(inum, item, decorated, target,
          starts_with("distractor"),
          difficulty = xsi, Infit, Infit_t) %>% 
   knitr::kable(., format = "html", 
@@ -256,15 +257,20 @@ fm.id %>% filter(decorated == "critical") %>%
 Table below shows the item difficulty and item fit for the 81 CVA items, in the descending order of item difficulty (i.e., the most difficulty item at the top).
 
 ```{r itemtble, echo = FALSE, message = FALSE, warning = F}
-library(DT)
-fm.id %>% 
-  select(fmid = formAndId, difficulty = xsi,
+
+item.tbl1<- fm.id %>% 
+  select(inum, difficulty = xsi,
          Infit, item, decorated, target, 
          starts_with("distractor")) %>% 
-  arrange(desc(difficulty)) %>%
+  arrange(desc(difficulty))
+
+library(DT)
+item.tbl1%>%
   DT::datatable(rownames = FALSE,
                 options = list(pageLength = 20)) %>%
   DT::formatRound(columns= c("difficulty", "Infit"), digits=2)
+
+# write_csv(item.tbl1, "output/item.tbl.whole.sample.csv")
 
 ```
 

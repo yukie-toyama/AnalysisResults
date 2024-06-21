@@ -18,6 +18,7 @@ library(janitor)
 library(readr)
 require(knitr)
 require(kableExtra)
+# rm(list = ls()) remove everything from the env
 
 # read item df and create target.r with mutually exclusive values
 # note inum2 was created in the csv file before importing into R.
@@ -25,6 +26,8 @@ item_df <- read_csv("data/grades-2-5/cva-stimuli-map-grade-2-5-2024-06-13.csv")
 # glimpse(item_df) # slightly different FormAndItemId
 # n_distinct(item_df$target)
 # get_dupes(item_df, target)
+
+item.tbl1 <- read_csv("output/item.tbl.whole.sample.csv")
 
 item_df <- item_df %>% 
   mutate(target.r = 
@@ -36,6 +39,11 @@ item_df <- item_df %>%
   mutate(decorated.r = 
            ifelse(decorated == "adopted" & FormAndItemId == "b-5-6-19m", 
                   "adopted.m", decorated))
+
+# merge inum from calibration 1
+inum <- item.tbl1 %>% select(inum, item)
+item_df<- left_join(item_df, inum)
+
 
 ```
 
@@ -232,7 +240,7 @@ rownames(fm.id) <- NULL
 
 # "quotation" infit value is 1.31
 fm.id %>% filter(decorated == "quotation") %>% 
-  select(FormAndItemId, item, decorated, target,
+  select(inum, item, decorated, target,
          starts_with("distractor"), 
          difficulty = xsi ,Infit, Infit_t) %>% 
   knitr::kable(., format = "html", 
@@ -242,7 +250,7 @@ fm.id %>% filter(decorated == "quotation") %>%
                 font_size = 12, full_width = T)
 
 fm.id %>% filter(decorated == "critical") %>% 
-  select(FormAndItemId, item, decorated, target,
+  select(inum, item, decorated, target,
          starts_with("distractor"),
          difficulty = xsi, Infit, Infit_t) %>% 
   knitr::kable(., format = "html", 
@@ -257,15 +265,59 @@ fm.id %>% filter(decorated == "critical") %>%
 Table below shows the item difficulty and item fit for the 81 CVA items, in the descending order of item difficulty (i.e., the most difficulty item at the top).
 
 ```{r itemtble, echo = FALSE, message = FALSE, warning = F}
-library(DT)
-fm.id %>% 
-  select(fmid = FormAndItemId, difficulty = xsi,
+
+item.tbl2 <- fm.id %>% 
+  select(inum, difficulty = xsi,
          Infit, item, decorated, target, 
          starts_with("distractor")) %>% 
-  arrange(desc(difficulty)) %>%
+  arrange(desc(difficulty))
+
+library(DT)
+item.tbl2%>%
   DT::datatable(rownames = FALSE,
                 options = list(pageLength = 20)) %>%
   DT::formatRound(columns= c("difficulty", "Infit"), digits=2)
+
+# write_csv(item.tbl2, "output/item.tbl.gr2_5_pubschl.sample.csv")
+
+```
+
+### Item Difficulty Comparison
+A scatter plot below shows item difficulty estimates from calibration with the target sample vs. those with the whole sample. The correlation is high (r = 0.95) and the values are generally higher with the target sample as indicated by most dots above the y=x equality line. 
+
+There is one stark outlier: i.08 which decorated word is "illustration" and target word "picture". The difficulty value is higher for the whole sample (0.81) than for the target grades 2-5 sample (0.11). But note that the two axes are on different scales so these values are not directly comparable. Y-axis' zero represents the mean of the target sample while that of X represents the mean of whole sample. 
+
+```{r idiffcomp, echo=FALSE, message = FALSE, warning = F, fig.width=7, fig.height=7}
+
+item.tbl1 <- item.tbl1 %>% arrange(inum)
+item.tbl2 <- item.tbl2 %>% arrange(inum)
+
+library(ggpubr)
+ggplot(data = data.frame(x = item.tbl1$difficulty, 
+                         y = item.tbl2$difficulty), 
+       aes(x, y)) + 
+  geom_point() +
+    theme_ipsum() +
+  ylab("difficulty from Target Sample") +
+  xlab("difficulty from Whole Sample") +
+  scale_y_continuous(breaks=seq(-1.5,2,0.5)) +
+  scale_x_continuous(breaks=seq(-1.5,2,0.5)) +
+  geom_abline(intercept = 0, slope = 1, linewidth = 0.5) +
+  stat_cor(aes(label = ..r.label..),
+           label.x = -1, label.y = 1.4) + 
+  annotate("text", 
+           x = 1.2, y = 0.1, 
+           label = "i.08 = illustration",
+           colour = "blue") +
+  ggtitle("Item Difficulty from Target Sample vs. Whole Sample")
+
+idiff.comp <- data.frame(inum = item.tbl1$inum,
+                         decorated = item.tbl1$decorated,
+                         target = item.tbl1$target,
+                         sample.w = item.tbl1$difficulty, 
+                         sample.t = item.tbl2$difficulty)
+
+idiff.comp %>% filter(inum == "i.08")
 
 ```
 
