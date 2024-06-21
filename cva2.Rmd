@@ -287,7 +287,7 @@ A scatter plot below shows item difficulty estimates from calibration with the t
 
 There is one stark outlier: i.08 which decorated word is "illustration" and target word "picture". The difficulty value is higher for the whole sample (0.81) than for the target grades 2-5 sample (0.11). But note that the two axes are on different scales so these values are not directly comparable. Y-axis' zero represents the mean of the target sample while that of X represents the mean of whole sample. 
 
-```{r idiffcomp, echo=FALSE, message = FALSE, warning = F, fig.width=7, fig.height=7}
+```{r idiffcomp, echo=FALSE, message = FALSE, warning = F, fig.width=7.5, fig.height=7.5}
 
 item.tbl1 <- item.tbl1 %>% arrange(inum)
 item.tbl2 <- item.tbl2 %>% arrange(inum)
