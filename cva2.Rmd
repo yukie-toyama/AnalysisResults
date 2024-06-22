@@ -80,6 +80,13 @@ s_df <- resp_df %>%
   select(user.assessmentUid, runId, user.grade)
 abil <- tam.wle(rasch)
 
+person.sep.rel <- 
+  unique(abil$WLE.rel) %>% 
+  round(., digits = 3)
+
+EAP.rel <- round(rasch$EAP.rel, digits = 3)
+
+
 s_df <- 
   bind_cols(s_df, abil) %>% 
   select(-pid)
@@ -98,7 +105,9 @@ max.idiff <- round(max(rasch$item$xsi.item), digits = 2)
 
 In Calibration #2, we used **a restricted response data from `r n.stdt` students in grades 2-5 in public schools for `r n.item` items**, using the Rasch model. The WrightMap shows item difficulty and ability estimates on the logit scale. Items are ordered by difficulty on the x-axis. 
 
-Consistent with the results with the whole sample (calibration #1), the map visually shows that no items exist for the very top and the very bottom ends of the ability distribution along the y-axis.  
+Consistent with the results with the whole sample (calibration #1), the map visually shows that no items exist for the very top and the very bottom ends of the ability distribution along the y-axis.
+
+Person separation reliability was found to be **`r person.sep.rel`**, which is analogous to Cronbach's alpha. It shows how well the measure spread out students on the ability continuum and differentiate them in their ability. EAP (expected a posteriori) reliability was found to be **`r EAP.rel`**. 
 
 
 ```{r wm, echo=FALSE, results = "hide", message =FALSE, fig.asp = 0.85, fig.width = 7, out.width = "98%"}
@@ -275,7 +284,7 @@ item.tbl2 <- fm.id %>%
 library(DT)
 item.tbl2%>%
   DT::datatable(rownames = FALSE,
-                options = list(pageLength = 20)) %>%
+                options = list(pageLength = 5)) %>%
   DT::formatRound(columns= c("difficulty", "Infit"), digits=2)
 
 # write_csv(item.tbl2, "output/item.tbl.gr2_5_pubschl.sample.csv")
@@ -345,7 +354,7 @@ A histogram and a boxplot below show the distribution of the student ability est
 
 ```{r abil.dist, echo=FALSE, message = FALSE, warning = F, results = "asis"}
 
-s_df %>%
+p <- s_df %>%
   ggplot( aes(x=theta)) +
     geom_histogram(alpha=0.6, position = 'identity',
                    color="#69b3a2", fill="#69b3a2") +
@@ -359,6 +368,27 @@ s_df %>%
     xlab("student ability estimates (in logit)") +
     ylab("count") +
   ggtitle("Student Ability")
+
+
+p2 <- s_df %>%
+  ggplot(aes(x=theta, fill = factor(user.grade))) +
+    geom_dotplot(method="histodot", 
+                 stackgroups = TRUE, dotsize = 0.33,
+                 binpositions = "all") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  scale_x_continuous(breaks=seq(-2.5,3.5,0.5)) +
+    theme_ipsum() +
+    theme(
+      axis.text.x = element_text(size = 10),
+      axis.text.y = element_text(size = 10)
+    ) +
+    xlab("student ability estimates (in logit)") +
+    ylab("count") +
+  guides(fill = guide_legend(title = "grade level"))
+# +ggtitle("Student Ability")
+
+p2 +
+  geom_density(alpha=0.4)
 
 s_df %>%
   ggplot(aes(x=theta, y="")) +
@@ -497,7 +527,9 @@ ws.DA.df <- ws.DA.df %>%
 library(DT)
 ws.DA.df %>% 
   DT::datatable(rownames = FALSE,
-                options = list(pageLength = 5)) 
+                options = list(pageLength = 5)) %>% 
+            formatPercentage(c("lower", "mid50", 
+                               "mid75", "upper"), 1)
 
 # Results provided in a .csv file.
 # write_csv(ws.DA.df, "cva.distractor.gr2-5.sample.csv")

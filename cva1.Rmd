@@ -267,7 +267,7 @@ item.tbl1<- fm.id %>%
 library(DT)
 item.tbl1%>%
   DT::datatable(rownames = FALSE,
-                options = list(pageLength = 20)) %>%
+                options = list(pageLength = 5)) %>%
   DT::formatRound(columns= c("difficulty", "Infit"), digits=2)
 
 # write_csv(item.tbl1, "output/item.tbl.whole.sample.csv")
@@ -450,7 +450,9 @@ ws.DA.df <- ws.DA.df %>%
 library(DT)
 ws.DA.df %>% 
   DT::datatable(rownames = FALSE,
-                options = list(pageLength = 5)) 
+                options = list(pageLength = 5)) %>% 
+            formatPercentage(c("lower", "mid50", 
+                               "mid75", "upper"), 1)
 
 # Results provided in a .csv file.
 # write_csv(ws.DA.df, "cva.distractor.whole.sample.csv")
