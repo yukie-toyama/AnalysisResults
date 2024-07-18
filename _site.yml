@@ -8,4 +8,6 @@ navbar:
       href: cva1.html
     - text: "CVA2"
       href: cva2.html
+    - text: "CVA.RT"
+      href: cva.RT.html
 output_dir: "docs"
