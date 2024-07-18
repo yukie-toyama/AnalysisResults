@@ -1,0 +1,72 @@
+---
+title: "CVA: Item-RT"
+subtitle: "gr2-5 public school sample"
+author: "Yukie Toyama"
+date: "2024-07-18"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+editor_options: 
+  chunk_output_type: console
+---
+
+### Item-level response time
+
+Boxplots below show the distribution of RT per item from 888 students in grades 2-5 at public schools. 
+
+```{r boxplot, echo=FALSE, results = "hide", message =FALSE, fig.asp = 0.85, fig.width = 7, out.width = "98%"}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(readr)
+require(knitr)
+require(kableExtra)
+# rm(list = ls()) remove everything from the env
+
+
+df <- read_csv("data/grades-2-5/cva-trials-public-grade-2-5-2024-06-13.csv")
+glimpse(df) # slightly different FormAndItemId
+n_distinct(df$trialId)
+n_distinct(df$runId) #888
+
+# get_dupes(df, runId, trialId) no duplicated
+
+df <- df %>% 
+  mutate(itemRT = timeFinished - timeStarted)
+
+df %>% 
+  ggplot(aes(x=decorated, y=itemRT)) + 
+  geom_boxplot()+ 
+  theme(axis.text.x = 
+          element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+### Summary table for the item-level RT
+
+```{r sum.tbl, echo=FALSE, message =FALSE, fig.asp = 0.85, fig.width = 7, out.width = "98%"}
+
+rt.sum.tbl <- df %>% group_by(decorated) %>% 
+  summarise(n = n(),
+            mean = mean(itemRT, na.rm = TRUE),
+            sd = sd(itemRT, na.rm = TRUE),
+            min = fivenum(itemRT)[1],
+            Q1 = fivenum(itemRT)[2],
+            median = fivenum(itemRT)[3],
+            Q3 = fivenum(itemRT)[4],
+            max = fivenum(itemRT)[5]) 
+library(DT) 
+datatable(rt.sum.tbl,
+    rownames= FALSE) %>%
+    formatRound(columns=c('mean', 
+                          'sd',
+                          'min',
+                          'Q1',
+                          'median',
+                          'Q3',
+                          'max'), digits=2)
+
+
+
+```
