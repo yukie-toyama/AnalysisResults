@@ -46,6 +46,8 @@ p+ theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 ### Summary table for the item-level RT (in ms)
 
+[Here](https://docs.google.com/spreadsheets/d/1kkljftIv-eD2JeiGPS9q977VAtaya74zk6MhBbqSlQo/edit?usp=sharing) is the item-stimuli map (with all 81 item-prompts and answer choices) to help interpret the RT summary stats in the table below. 
+
 ```{r sum.tbl, echo=FALSE, message =FALSE, fig.asp = 0.85, fig.width = 7, out.width = "98%"}
 
 rt.sum.tbl <- df %>% group_by(decorated) %>% 
