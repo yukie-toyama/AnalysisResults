@@ -73,3 +73,47 @@ datatable(rt.sum.tbl,
 
 
 ```
+
+### Subsample: correct-responses only
+
+Here are the RT summary statistics based only on the correct responses (dropping responses that were incorrect).  
+
+```{r corr.resps.only, echo=FALSE, message =FALSE, fig.asp = 0.85, fig.width = 7, out.width = "98%"}
+
+p2<- df %>%
+  filter(correct == 1) %>% 
+  ggplot(aes(x = reorder(decorated, rt, 
+                         FUN = median), y=rt)) + 
+  geom_boxplot(outlier.shape = NA)+ 
+  coord_cartesian(ylim =  c(0, 24000)) + 
+  ylab("RT (in ms)")+ xlab("decorated")
+
+p2+ theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
+rt.sum.tbl.correct <- df %>% 
+  filter(correct == 1) %>% 
+  group_by(decorated) %>% 
+  summarise(n = n(),
+            mean = mean(rt, na.rm = TRUE),
+            sd = sd(rt, na.rm = TRUE),
+            min = fivenum(rt)[1],
+            Q1 = fivenum(rt)[2],
+            median = fivenum(rt)[3],
+            Q3 = fivenum(rt)[4],
+            max = fivenum(rt)[5]) 
+library(DT) 
+datatable(rt.sum.tbl.correct,
+    rownames= FALSE) %>%
+    formatRound(columns=c('mean', 
+                          'sd',
+                          'min',
+                          'Q1',
+                          'median',
+                          'Q3',
+                          'max'), digits=2)
+
+
+
+```
