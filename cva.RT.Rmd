@@ -13,9 +13,9 @@ editor_options:
 
 ### Item-level response time
 
-Boxplots below show the distribution of RT per item from 888 students in grades 2-5 at public schools. 
+Boxplots below show the distribution of RT (in milliseconds) for the 81 CVA items from 888 students in grades 2-5 at public schools. X-axis are ordered by the median RT value, with the "previous" item being the shortest median RT (4,346.5 ms) while the "attitude" item the longest (7,957 ms).
 
-```{r boxplot, echo=FALSE, results = "hide", message =FALSE, fig.asp = 0.85, fig.width = 7, out.width = "98%"}
+```{r boxplot, echo=FALSE, results = "hide", message =FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(janitor)
@@ -24,6 +24,7 @@ require(knitr)
 require(kableExtra)
 # rm(list = ls()) remove everything from the env
 
+options(scipen=999)
 
 df <- read_csv("data/grades-2-5/cva-trials-public-grade-2-5-2024-06-13.csv")
 glimpse(df) # slightly different FormAndItemId
@@ -32,30 +33,30 @@ n_distinct(df$runId) #888
 
 # get_dupes(df, runId, trialId) no duplicated
 
-df <- df %>% 
-  mutate(itemRT = timeFinished - timeStarted)
+p<- df %>% 
+  ggplot(aes(x = reorder(decorated, rt, 
+                         FUN = median), y=rt)) + 
+  geom_boxplot(outlier.shape = NA)+ 
+  coord_cartesian(ylim =  c(0, 25000)) + 
+  ylab("RT (in ms)")+ xlab("decorated")
 
-df %>% 
-  ggplot(aes(x=decorated, y=itemRT)) + 
-  geom_boxplot()+ 
-  theme(axis.text.x = 
-          element_text(angle = 90, vjust = 0.5, hjust=1))
+p+ theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
 
 ```
 
-### Summary table for the item-level RT
+### Summary table for the item-level RT (in ms)
 
 ```{r sum.tbl, echo=FALSE, message =FALSE, fig.asp = 0.85, fig.width = 7, out.width = "98%"}
 
 rt.sum.tbl <- df %>% group_by(decorated) %>% 
   summarise(n = n(),
-            mean = mean(itemRT, na.rm = TRUE),
-            sd = sd(itemRT, na.rm = TRUE),
-            min = fivenum(itemRT)[1],
-            Q1 = fivenum(itemRT)[2],
-            median = fivenum(itemRT)[3],
-            Q3 = fivenum(itemRT)[4],
-            max = fivenum(itemRT)[5]) 
+            mean = mean(rt, na.rm = TRUE),
+            sd = sd(rt, na.rm = TRUE),
+            min = fivenum(rt)[1],
+            Q1 = fivenum(rt)[2],
+            median = fivenum(rt)[3],
+            Q3 = fivenum(rt)[4],
+            max = fivenum(rt)[5]) 
 library(DT) 
 datatable(rt.sum.tbl,
     rownames= FALSE) %>%
